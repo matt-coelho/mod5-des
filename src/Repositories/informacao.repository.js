@@ -1,48 +1,75 @@
-import Informacao from "../Models/informacao.model.js"
-import connect from "../Database/mongoosedb.js"
+import { ObjectId } from "mongodb"
+import { getConn } from "../Database/mongodb.js"
 
 async function create(informacao) {
+  const conn = getConn()
   try {
-    const mongoose = await connect()
-    const livroAvaliacao = mongoose.model("livroInfo", Informacao)
-    informacao = new livroAvaliacao(informacao)
-    await informacao.save()
+    await conn.connect()
+    await conn.db("livraria").collection("livroInfo").insertOne(informacao)
+    return await read(informacao)
   } catch (err) {
     throw err
+  } finally {
+    conn.close()
   }
 }
 
 async function read(informacao) {
+  const conn = getConn()
   try {
-    const mongoose = await connect()
-    const livroAvaliacao = mongoose.model("livroInfo", Informacao)
-    const qry = livroAvaliacao.findOne({ livroId: informacao.livroId })
-    return await qry.exec()
+    await conn.connect()
+    if (!informacao.livroid) {
+      return await conn
+        .db("livraria")
+        .collection("livroInfo")
+        .find({})
+        .toArray()
+    } else {
+      return await conn
+        .db("livraria")
+        .collection("livroInfo")
+        .find({ livroid: informacao.livroid })
+        .toArray()
+    }
   } catch (err) {
     throw err
+  } finally {
+    conn.close()
   }
 }
 
 async function update(informacao) {
+  const conn = getConn()
   try {
-    const mongoose = await connect()
-    const livroAvaliacao = mongoose.model("livroInfo", Informacao)
-    await livroAvaliacao.findOneAndUpdate(
-      { livroId: informacao.livroId },
-      informacao
-    )
+    //const _id = informacao.informacaoId
+    const livroid = informacao.livroid
+    //delete informacao.informacaoId
+    delete informacao.livroid
+    await conn.connect()
+    await conn
+      .db("livraria")
+      .collection("livroInfo")
+      .updateOne({ livroid: livroid }, { $set: { ...informacao } })
+    return await read(informacao)
   } catch (err) {
     throw err
+  } finally {
+    conn.close()
   }
 }
 
 async function remove(informacao) {
+  const conn = getConn()
   try {
-    const mongoose = await connect()
-    const livroAvaliacao = mongoose.model("livroInfo", Informacao)
-    await livroAvaliacao.deleteOne({ _id: informacao.id })
+    await conn.connect()
+    await conn
+      .db("livraria")
+      .collection("livroInfo")
+      .deleteOne({ livroid: informacao.livroid })
   } catch (err) {
     throw err
+  } finally {
+    conn.close()
   }
 }
 

@@ -1,49 +1,34 @@
-import Avaliacao from "../Models/avaliacao.model.js"
-import connect from "../Database/mongoosedb.js"
+import { ObjectId } from "mongodb"
+import { getConn } from "../Database/mongodb.js"
+import informacao from "./informacao.repository.js"
 
 async function create(avaliacao) {
+  const conn = getConn()
   try {
-    const mongoose = await connect()
-    const livroAvaliacao = mongoose.model("livroInfo", Avaliacao)
-    avaliacao = new livroAvaliacao(avaliacao)
-    await avaliacao.save()
+    let info = await informacao.read(avaliacao)
+    info = info[0]
+    delete avaliacao.livroid
+    info.avaliacoes.push(avaliacao)
+    await informacao.update(info)
   } catch (err) {
     throw err
-  }
-}
-
-async function read(avaliacao) {
-  try {
-    const mongoose = await connect()
-    const livroAvaliacao = mongoose.model("livroInfo", Avaliacao)
-    const qry = livroAvaliacao.findOne({ livroId: avaliacao.livroId })
-    return await qry.exec()
-  } catch (err) {
-    throw err
-  }
-}
-
-async function update(avaliacao) {
-  try {
-    const mongoose = await connect()
-    const livroAvaliacao = mongoose.model("livroInfo", Avaliacao)
-    await livroAvaliacao.findOneAndUpdate(
-      { livroId: avaliacao.livroId },
-      avaliacao
-    )
-  } catch (err) {
-    throw err
+  } finally {
+    conn.close()
   }
 }
 
 async function remove(avaliacao) {
+  const conn = getConn()
   try {
-    const mongoose = await connect()
-    const livroAvaliacao = mongoose.model("livroInfo", Avaliacao)
-    await livroAvaliacao.deleteOne({ _id: avaliacao.id })
+    let info = await informacao.read(avaliacao)
+    info = info[0]
+    info.avaliacoes.splice(avaliacao.avaliacaoid, 1)
+    await informacao.update(info)
   } catch (err) {
     throw err
+  } finally {
+    conn.close()
   }
 }
 
-export default { create, read, update, remove }
+export default { create, remove }
