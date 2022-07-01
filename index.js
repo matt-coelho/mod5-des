@@ -1,5 +1,9 @@
 import app from "./src/app.js"
+import dotenv from "dotenv"
 
-app.listen(8090, () => {
-  console.log("running on port 8090")
+dotenv.config()
+const port = process.env.HTTP_PORT
+
+app.listen(port, () => {
+  console.log(`running on port ${port}`)
 })

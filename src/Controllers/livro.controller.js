@@ -3,7 +3,7 @@ import Livro from "../Services/livro.service.js"
 async function create(req, res, next) {
   try {
     const livro = req.body
-    if (!livro.nome || !livro.valor || !livro.estoque || !livro.autorid) {
+    if (!livro.nome || !livro.valor || livro.estoque < 0 || !livro.autorid) {
       throw new Error("Campos obrigatorios nao informados")
     }
     res.send(await Livro.create(livro))

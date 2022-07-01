@@ -1,7 +1,11 @@
 import mongodb from "mongodb"
+import dotenv from "dotenv"
 
-const dburl =
-  "mongodb+srv://sanctusdominusdeo:WjN5noh0AQ8ReZgY@cluster0.lnxaw.mongodb.net/?retryWrites=true&w=majority"
+dotenv.config()
+const srv = process.env.MONGO_SRV
+const pss = process.env.MONGO_PASS
+
+const dburl = `mongodb+srv://${srv}:${pss}@cluster0.lnxaw.mongodb.net/?retryWrites=true&w=majority`
 
 export function getConn() {
   return new mongodb.MongoClient(dburl)
