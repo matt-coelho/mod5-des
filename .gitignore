@@ -1,3 +1,4 @@
 .babelrc
 /testes
 /node_modules
+.env

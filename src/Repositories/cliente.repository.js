@@ -34,6 +34,11 @@ async function read(cliente) {
       const values = [cliente.email, cliente.senha]
       const res = await conn.query(sql, values)
       return res.rows[0]
+    } else if (cliente.email && !cliente.senha) {
+      const sql = "select clienteid from clientes where email = $1"
+      const values = [cliente.email]
+      const res = await conn.query(sql, values)
+      return res.rows[0]
     } else {
       const sql =
         "select clienteid, nome, email, telefone, endereco from clientes order by clienteid"

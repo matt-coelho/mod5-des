@@ -1,4 +1,6 @@
 import Cliente from "../Services/cliente.service.js"
+import { getRole } from "../Controllers/authenticator.controller.js"
+import { parse } from "pg-protocol"
 
 async function create(req, res, next) {
   try {
@@ -40,6 +42,15 @@ async function update(req, res, next) {
     ) {
       throw new Error("Campos obrigatorios nao informados")
     }
+
+    if (getRole(req.auth.user) === "cliente") {
+      const _cli = { email: req.auth.user }
+      const cli = await Cliente.read(_cli)
+      if (parseInt(cli.clienteid) !== cliente.clienteid) {
+        throw new Error("Erro, tentativa de alterar outro usuario")
+      }
+    }
+
     res.send(await Cliente.update(cliente))
   } catch (err) {
     next(err)
