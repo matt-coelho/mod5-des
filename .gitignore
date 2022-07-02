@@ -1,5 +1,5 @@
+.env
 .babelrc
 /testes
 /node_modules
 /coverage
-.env
